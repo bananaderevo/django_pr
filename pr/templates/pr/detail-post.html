@@ -1,0 +1,14 @@
+{% extends 'pr/base.html' %}
+{% block content %}
+    <form action="/create/"><button type="submit">Create post</button></form>
+    <form action="/"><button type="submit">Main</button></form>
+    {% if post %}
+        <h1>Post: </h1>
+        <p>{{ post.text }}</p>
+        <h1>Author: {{ post.author }}</h1>
+        <h2>Comments</h2>
+        {{ post.comments.text[1] }}
+    {% endif %}
+        ccccccccc
+
+{% endblock %}

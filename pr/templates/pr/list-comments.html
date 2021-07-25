@@ -1,0 +1,15 @@
+{% block content %}
+    {% if object_list %}
+        <form action="/create/"><button type="submit">Create book</button></form>
+        {% for i in object_list %}
+            <table border="2" bordercolor="black" bgcolor="white" width="300"> <!-- New table in every loop is correct -->
+                <tr><td style="width:300px">Book: <a href="/detail/{{ i.id }}">{{ i.text }}</td></tr>
+                <tr><td style="width:300px">Rating: {{ i.author }}</td></tr>
+            </table>
+        {% endfor %}
+
+    {% else %}
+        <h1>There are not any comments, add some.</h1>
+        <form action="/create/"><button type="submit">Leave a comment</button></form>
+    {% endif %}
+{% endblock %}

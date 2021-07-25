@@ -1,0 +1,9 @@
+{% extends 'pr/base.html' %}
+{% block content %}
+    <h1>Username: {{ user.username }}</h1>
+    <h2>First name: {{ user.first_name }}</h2>
+    <h2>Last name: {{ user.last_name }}</h2>
+    <h3>Info: {{ user.short_description }}</h3>
+    <h3>About: {{ user.description }}</h3>
+    <h3>Join date: {{ user.date_joined }}</h3>
+{% endblock %}
