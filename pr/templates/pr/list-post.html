@@ -1,19 +1,26 @@
 {% extends 'pr/base.html' %}
 {% block content %}
+    {% if request.user.is_authenticated %}
+        <p>Hi, {{ request.user }}</p>
+        <form action="/accounts/logout"><button type="submit">Log out</button></form>
+    {% else %}
+    <form action="/accounts/signup"><button type="submit">Sign up</button></form>
+    <form action="/accounts/login"><button type="submit">Log in</button></form>
+    {% endif %}
+    <form action="/"><button type="submit">Main</button></form>
      {% if object_list %}
         <form action="/create/"><button type="submit">Create post</button></form>
-        <form action="/"><button type="submit">Main</button></form>
         {% for i in object_list %}
             <table border="2" bordercolor="black" bgcolor="white" width="300"> <!-- New table in every loop is correct -->
                 <tr><td style="width:300px">{{ i.text }}</td></tr>
                 <tr><td style="width:300px">Author: {{ i.author }}</td></tr>
-                <tr><td style="width:300px"><a href="/post/{{ i.id }}">Leave a comment</td></tr>
+                <tr><td style="width:300px"><a href="/post/{{ i.id }}">Detail</td></tr>
             </table>
         {% endfor %}
 
     {% else %}
-        <h1>There are not any objects, add some.</h1>
-        <form action="/create/"><button type="submit">Create book</button></form>
+        <h1>There are not any posts, add some.</h1>
+        <form action="/create/"><button type="submit">Create post</button></form>
     {% endif %}
     {% include "pr/pagination.html"%}
 {% endblock %}

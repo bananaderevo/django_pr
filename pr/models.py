@@ -49,7 +49,7 @@ class Comments(models.Model):
         on_delete=models.CASCADE, null=True)
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['id']
         verbose_name = 'comment'
 
     def __str__(self):

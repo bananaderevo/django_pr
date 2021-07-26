@@ -28,3 +28,11 @@ class NameForm(forms.ModelForm):
     class Meta:
         model = Comments
         fields = ('name',)
+
+
+class FeedbackForm(forms.Form):
+    contact_name = forms.CharField(max_length=150)
+    contact_email = forms.EmailField(max_length=150)
+    content = forms.CharField(
+        widget=forms.Textarea
+    )

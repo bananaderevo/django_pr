@@ -1,10 +1,11 @@
 from django.urls import path
 
-from .views import PostCreateView, PostListView, Profile, show_post, create_com
+from .views import PostCreateView, PostListView, Profile, show_post, create_com, feedback
 
 
 urlpatterns = [
     path('create/', PostCreateView.as_view(), name='create'),
+    path('feedback/', feedback, name='feedback'),
     path('<int:pk>', Profile.as_view(), name='profile'),
     path('', PostListView.as_view(), name='main'),
     path('post/<int:id>', show_post, name='post'),
@@ -14,3 +15,7 @@ urlpatterns = [
     # path('post/<int:pk>', CommentsListView.as_view(), name='post'),
 
 ]
+
+handler404 = 'pr.views.handler404'
+handler500 = 'pr.views.handler500'
+

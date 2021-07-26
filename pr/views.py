@@ -6,7 +6,7 @@ from django.views.generic import DetailView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, AnonymousUser
 from django.shortcuts import render, get_object_or_404
-from .forms import NameForm
+from .forms import NameForm, FeedbackForm
 from django.http import HttpResponseRedirect
 
 from django.urls import reverse
@@ -16,6 +16,8 @@ from .forms import UserForm, ProfileForm
 
 from .models import Post, Comments
 
+from django.shortcuts import render
+from django.template import RequestContext
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -52,7 +54,7 @@ class PostListView(ListView):
 
 def show_post(request, id):
     post = get_object_or_404(Post, id=id)
-    object_list = post.comments.all()
+    object_list = post.comments.all().order_by('-id')
 
     paginator = Paginator(object_list, 5)
     page_number = request.GET.get('page')
@@ -120,3 +122,42 @@ def create_com(request, id):
 
     # И добавляем names в контекст, чтобы плучить к ним доступ в шаблоне
     return render(request, 'pr/list-comments.html', {'form': form, 'names': names})
+
+
+def feedback(request):
+
+    if request.method == 'POST':
+        form = FeedbackForm(data=request.POST)
+
+        if form.is_valid():
+            contact_name = request.POST.get(
+                'contact_name'
+                , '')
+            contact_email = request.POST.get(
+                'contact_email'
+                , '')
+            form_content = request.POST.get('content', '')
+
+            # Email the profile with the
+            # contact information
+            send_mail(subject='Need feedback :(',
+                      message=f'{form_content}\nMail to feedback: {contact_email}\n Name: {contact_name}',
+                      from_email='admin@admin',
+                      recipient_list=['test@test'])
+            return HttpResponseRedirect('/')
+
+    return render(request, 'pr/feedback.html', {
+        'form': FeedbackForm,
+    })
+
+
+def handler404(request, *args, **argv):
+    response = render(request, 'errors/404.html')
+    response.status_code = 404
+    return response
+
+
+def handler500(request, *args, **argv):
+    response = render(request, 'errors/500.html')
+    response.status_code = 500
+    return response
