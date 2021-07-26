@@ -5,7 +5,8 @@ from django.views.generic import DetailView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
-from .forms import CommentsForm
+from .forms import NameForm
+from django.http import HttpResponseRedirect
 
 from django.urls import reverse_lazy
 from django.views import generic
@@ -48,35 +49,63 @@ class PostListView(ListView):
     template_name = 'pr/list-post.html'
 
 
-class PostDetailView(DetailView):
-    model = Post
-    template_name = 'pr/detail-post.html'
-    context_object_name = 'post'
+def show_post(request, id):
+    post = get_object_or_404(Post, id=id)
+
+    return render(request, 'pr/detail-post.html', {'post': post,
+                                                   })
 
 
-class CommentsListView(ListView):
-    model = Comments
-    fields = ['text', 'author', 'post']
-    template_name = 'pr/list-comments.html'
-# def post_detail(request, id):
-#     post = get_object_or_404(Post, id=id,)
-#     # List of active comments for this post
-#     comments = post.comments.all()
+# def create_com(request, id):
 #
 #     if request.method == 'POST':
-#         # A comment was posted
-#         comment_form = CommentsForm(data=request.POST)
-#         if comment_form.is_valid():
-#             # Create Comment object but don't save to database yet
-#             new_comment = comment_form.save(commit=False)
-#             # Assign the current post to the comment
-#             new_comment.post = post
-#             # Save the comment to the database
-#             new_comment.save()
+#
+#         form = NameForm(request.POST)
+#
+#         if form.is_valid():
+#             # Сохранение формы
+#             form.save()
+#
+#             # Редирект на ту же страницу
+#             return HttpResponseRedirect(request.path_info)
+#
 #     else:
-#         comment_form = CommentsForm()
-#     return render(request,
-#                   'pr/detail-post.html',
-#                  {'post': post,
-#                   'comments': comments,
-#                   'comment_form': comment_form})
+#     # метод GET
+#
+#         form = NameForm()
+#
+#         # Получение всех имен из БД.
+#         names = Comments.objects.all()
+#
+#     # И добавляем names в контекст, чтобы плучить к ним доступ в шаблоне
+#     return render(request, 'pr/list-comments.html', {'form': form, 'names': names})
+
+def create_com(request, id):
+
+    if request.method == 'POST':
+        instance = get_object_or_404(Post, id=id)
+        form = NameForm(request.POST)
+
+        if form.is_valid():
+            # Сохранение формы
+            form.save()
+            Post.objects.get(id=id).comments.add(Comments.objects.last().id)
+            post = form.save(commit=False)
+            post.user = request.user
+            post.author = post.user
+            post.author.id = request.user.id
+            post.save()
+
+            # Редирект на ту же страницу
+            return HttpResponseRedirect(request.path_info)
+
+    else:
+    # метод GET
+
+        form = NameForm()
+
+        # Получение всех имен из БД.
+        names = Comments.objects.all()
+
+    # И добавляем names в контекст, чтобы плучить к ним доступ в шаблоне
+    return render(request, 'pr/list-comments.html', {'form': form, 'names': names})

@@ -3,6 +3,8 @@ from .models import User
 from .models import Profile
 
 from .models import Comments
+
+
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
@@ -15,7 +17,14 @@ class ProfileForm(forms.ModelForm):
         fields = ('short_description', 'description' )
 
 
-class CommentsForm(forms.ModelForm):
+# class CommentsForm(forms.ModelForm):
+#     class Meta:
+#         model = Comments
+#         fields = ('text', )
+
+
+class NameForm(forms.ModelForm):
+
     class Meta:
         model = Comments
-        fields = ('text', )
+        fields = ('name',)

@@ -7,8 +7,14 @@
         <p>{{ post.text }}</p>
         <h1>Author: {{ post.author }}</h1>
         <h2>Comments</h2>
-        {{ post.comments.text[1] }}
-    {% endif %}
-        ccccccccc
+        {% for i in post.comments.all %}
+            <table border="2" bordercolor="black" bgcolor="white" width="300"> <!-- New table in every loop is correct -->
+                <tr><td style="width:300px">Comment: {{ i.name }}</td></tr>
+                <tr><td style="width:300px">Author: {{ i.author }}</td></tr>
+            </table>
 
+        {% endfor %}
+
+    {% endif %}
+    <form action="/post/{{ post.id }}/comment"><button>Leave a comment</button></form>
 {% endblock %}

@@ -15,4 +15,4 @@ class UserModelAdmin(admin.ModelAdmin):
 
 @admin.register(Comments)
 class CommentsModelAdmin(admin.ModelAdmin):
-    list_display = ['text', 'author', 'id']
+    list_display = ['name', 'author', 'id']

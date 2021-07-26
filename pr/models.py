@@ -27,18 +27,33 @@ class Profile(models.Model):
         instance.profile.save()
 
 
+# class Comments(models.Model):
+#     text = models.CharField(max_length=150, null=True)
+#     author = models.ForeignKey(
+#         settings.AUTH_USER_MODEL,
+#         on_delete=models.CASCADE, null=True)
+#
+#     class Meta:
+#         ordering = ['id']
+#         verbose_name = 'Comment'
+#
+#     def __str__(self):
+#         return self.text
+
+
 class Comments(models.Model):
-    text = models.CharField(max_length=150, null=True)
+    name = models.CharField(max_length=100)
+
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE, null=True)
 
     class Meta:
         ordering = ['id']
-        verbose_name = 'Comment'
+        verbose_name = 'comment'
 
     def __str__(self):
-        return self.text
+        return self.name
 
 
 class Post(models.Model):
@@ -56,7 +71,12 @@ class Post(models.Model):
 
     def display_comments(self):
         """Creates a string for the Genre. This is required to display genre in Admin."""
-        return ', '.join([comments.text for comments in self.comments.all()[:3]])
+        return ', '.join([comments.name for comments in self.comments.all()[:3]])
+
+    def display_all_comments(self):
+
+        return ', '.join([comments.name for comments in self.comments.all()])
 
     display_comments.short_description = 'Comments'
+
 
