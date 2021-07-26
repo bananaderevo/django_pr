@@ -1,14 +1,15 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 from django.views.generic.edit import CreateView
 from django.views.generic import DetailView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.shortcuts import render, get_object_or_404
 from .forms import NameForm
 from django.http import HttpResponseRedirect
 
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django.views import generic
 from django.core.mail import send_mail
 from .forms import UserForm, ProfileForm
@@ -51,8 +52,13 @@ class PostListView(ListView):
 
 def show_post(request, id):
     post = get_object_or_404(Post, id=id)
+    object_list = post.comments.all()
 
+    paginator = Paginator(object_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, 'pr/detail-post.html', {'post': post,
+                                                   'page_obj': page_obj,
                                                    })
 
 
@@ -83,7 +89,6 @@ def show_post(request, id):
 def create_com(request, id):
 
     if request.method == 'POST':
-        instance = get_object_or_404(Post, id=id)
         form = NameForm(request.POST)
 
         if form.is_valid():
@@ -91,13 +96,19 @@ def create_com(request, id):
             form.save()
             Post.objects.get(id=id).comments.add(Comments.objects.last().id)
             post = form.save(commit=False)
-            post.user = request.user
-            post.author = post.user
-            post.author.id = request.user.id
-            post.save()
+            if request.user.is_authenticated:
 
+                post.user = request.user
+                post.author = post.user
+                post.author.id = request.user.id
+                post.save()
+            else:
+                post.user = AnonymousUser()
+                # post.author = AnonymousUser()
+                # post.author.id = request.user.id
+                post.save()
             # Редирект на ту же страницу
-            return HttpResponseRedirect(request.path_info)
+            return HttpResponseRedirect(reverse('post', kwargs={'id': id}))
 
     else:
     # метод GET

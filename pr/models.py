@@ -49,7 +49,7 @@ class Comments(models.Model):
         on_delete=models.CASCADE, null=True)
 
     class Meta:
-        ordering = ['id']
+        ordering = ['-id']
         verbose_name = 'comment'
 
     def __str__(self):
@@ -64,7 +64,7 @@ class Post(models.Model):
     comments = models.ManyToManyField(Comments, null=True)
 
     class Meta:
-        ordering = ['id']
+        ordering = ['-id']
 
     def __str__(self):
         return f'Post: {self.text}'
