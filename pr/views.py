@@ -2,7 +2,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.views.generic.edit import CreateView
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, AnonymousUser
 from django.shortcuts import render, get_object_or_404
@@ -17,7 +17,7 @@ from .forms import UserForm, ProfileForm
 from .models import Post, Comments
 
 from django.shortcuts import render
-from django.template import RequestContext
+
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -43,6 +43,12 @@ class Profile(DetailView):
     model = User
     template_name = 'user/user_profile.html'
     context_object_name = 'user'
+
+
+class ProfileUpdateView(UpdateView):
+    model = User
+    fields = ['username', 'first_name', 'last_name', 'email', 'short_description', 'description']
+    template_name = 'user/user_profile_edit.html'
 
 
 class PostListView(ListView):

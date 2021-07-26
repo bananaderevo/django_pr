@@ -1,9 +1,12 @@
 {% extends 'pr/base.html' %}
 {% block content %}
+    <form action="/"><button type="submit">Main</button></form>
     <h1>Username: {{ user.username }}</h1>
     <h2>First name: {{ user.first_name }}</h2>
     <h2>Last name: {{ user.last_name }}</h2>
-    <h3>Info: {{ user.short_description }}</h3>
+    <h2>Email: {{ user.email }}</h2>
+    <h3>Short description: {{ user.short_description }}</h3>
     <h3>About: {{ user.description }}</h3>
     <h3>Join date: {{ user.date_joined }}</h3>
+    <form action="{{ user.id }}/edit"><button type="submit">Edit profile</button></form>
 {% endblock %}
