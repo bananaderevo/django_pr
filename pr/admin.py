@@ -8,11 +8,6 @@ class PostModelAdmin(admin.ModelAdmin):
     list_display = ['text', 'author', 'display_comments']
 
 
-@admin.register(User)
-class UserModelAdmin(admin.ModelAdmin):
-    list_display = ['name', 'id']
-
-
 @admin.register(Comments)
 class CommentsModelAdmin(admin.ModelAdmin):
-    list_display = ['name', 'author', 'id']
+    list_display = ['is_published', 'name', 'author', 'id']

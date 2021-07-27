@@ -5,6 +5,12 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
+    <form action="/feedback"><button type="submit">Contact us</button></form>
+
+    {% if request.user.is_authenticated and request.path != '/profile'%}
+        <form action="/profile"><button type="submit">My profile</button></form>
+
+    {% endif %}
 {% block content %}
 {% endblock %}
 </body>

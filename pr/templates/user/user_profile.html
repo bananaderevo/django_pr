@@ -8,5 +8,5 @@
     <h3>Short description: {{ user.short_description }}</h3>
     <h3>About: {{ user.description }}</h3>
     <h3>Join date: {{ user.date_joined }}</h3>
-    <form action="{{ user.id }}/edit"><button type="submit">Edit profile</button></form>
+    <form action="/profile/edit"><button type="submit">Edit profile</button></form>
 {% endblock %}

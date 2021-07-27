@@ -6,22 +6,18 @@ from django.views.generic import DetailView, ListView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, AnonymousUser
 from django.shortcuts import render, get_object_or_404
-from .forms import NameForm, FeedbackForm
+from .forms import NameForm, FeedbackForm, UpdateProfile
 from django.http import HttpResponseRedirect
 
 from django.urls import reverse
-from django.views import generic
 from django.core.mail import send_mail
-from .forms import UserForm, ProfileForm
 
 from .models import Post, Comments
-
-from django.shortcuts import render
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['text']
+    fields = ['subject', 'short_description', 'text']
     success_url = '/'
     template_name = 'pr/create.html'
 
@@ -39,10 +35,15 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class Profile(DetailView):
-    model = User
-    template_name = 'user/user_profile.html'
-    context_object_name = 'user'
+# class Profile(DetailView):
+#     model = User
+#     template_name = 'user/user_profile.html'
+#     context_object_name = 'user'
+
+def profile(request):
+    user = request.user
+
+    return render(request, 'user/user_profile.html', {'user': user})
 
 
 class ProfileUpdateView(UpdateView):
@@ -51,52 +52,10 @@ class ProfileUpdateView(UpdateView):
     template_name = 'user/user_profile_edit.html'
 
 
-class PostListView(ListView):
-    model = Post
-    paginate_by = 10
-    fields = ['text', 'author']
-    template_name = 'pr/list-post.html'
-
-
-def show_post(request, id):
-    post = get_object_or_404(Post, id=id)
-    object_list = post.comments.all().order_by('-id')
-
-    paginator = Paginator(object_list, 5)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'pr/detail-post.html', {'post': post,
-                                                   'page_obj': page_obj,
-                                                   })
-
-
-# def create_com(request, id):
-#
-#     if request.method == 'POST':
-#
-#         form = NameForm(request.POST)
-#
-#         if form.is_valid():
-#             # Сохранение формы
-#             form.save()
-#
-#             # Редирект на ту же страницу
-#             return HttpResponseRedirect(request.path_info)
-#
-#     else:
-#     # метод GET
-#
-#         form = NameForm()
-#
-#         # Получение всех имен из БД.
-#         names = Comments.objects.all()
-#
-#     # И добавляем names в контекст, чтобы плучить к ним доступ в шаблоне
-#     return render(request, 'pr/list-comments.html', {'form': form, 'names': names})
-
-def create_com(request, id):
+def profile_edit(request):
 
     if request.method == 'POST':
+
         form = NameForm(request.POST)
 
         if form.is_valid():
@@ -130,6 +89,77 @@ def create_com(request, id):
     return render(request, 'pr/list-comments.html', {'form': form, 'names': names})
 
 
+class PostListView(ListView):
+    model = Post
+    paginate_by = 10
+    fields = ['text', 'author']
+    template_name = 'pr/list-post.html'
+
+
+def userpost(request, id):
+    author = get_object_or_404(User, id=id)
+    posts = Post.objects.filter(author=author)
+    print(posts)
+    object_list = posts
+    paginator = Paginator(object_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'pr/list-userpost.html', {'posts': posts,
+                                                     'page_obj': page_obj,
+                                                     'author': author})
+
+
+def show_post(request, id):
+    post = get_object_or_404(Post, id=id)
+    object_list = post.comments.all().order_by('-id')
+
+    paginator = Paginator(object_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    if request.method == 'POST':
+        form = NameForm(request.POST)
+
+        if form.is_valid():
+            # Сохранение формы
+            form.save()
+            Post.objects.get(id=id).comments.add(Comments.objects.last().id)
+            email = Post.objects.get(id=id).author.email
+            post = form.save(commit=False)
+            if request.user.is_authenticated:
+
+                post.user = request.user
+                post.author = post.user
+                post.author.id = request.user.id
+                post.save()
+            else:
+                post.user = AnonymousUser()
+                # post.author = AnonymousUser()
+                # post.author.id = request.user.id
+                post.save()
+            # Редирект на ту же страницу
+            send_mail(subject='New comment!',
+                      message=f'New comment was added: {Comments.objects.last().name}\n'
+                              f'Author: {Comments.objects.last().author}',
+                      from_email='admin@admin',
+                      recipient_list=[email, 'admin@admin'])
+            return HttpResponseRedirect(reverse('post', kwargs={'id': id}))
+
+    else:
+    # метод GET
+
+        form = NameForm()
+
+        # Получение всех имен из БД.
+        names = Comments.objects.all()
+
+    # И добавляем names в контекст, чтобы плучить к ним доступ в шаблоне
+    return render(request, 'pr/detail-post.html', {'post': post,
+                                                   'page_obj': page_obj,
+                                                   'form': form, 'names': names})
+
+
 def feedback(request):
 
     if request.method == 'POST':
@@ -155,6 +185,21 @@ def feedback(request):
     return render(request, 'pr/feedback.html', {
         'form': FeedbackForm,
     })
+
+
+def update_profile(request):
+    args = {}
+
+    if request.method == 'POST':
+        form = UpdateProfile(request.POST, instance=request.user)
+        form.actual_user = request.user
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('profile'))
+    else:
+        form = UpdateProfile()
+
+    return render(request, 'user/user_profile_edit.html', {'form': form})
 
 
 def handler404(request, *args, **argv):

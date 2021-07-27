@@ -1,21 +1,16 @@
 from django.urls import path
 
-from .views import PostCreateView, PostListView, Profile, show_post, create_com, feedback, ProfileUpdateView
+from .views import PostCreateView, PostListView, profile, update_profile, show_post, feedback, userpost
 
 
 urlpatterns = [
     path('create/', PostCreateView.as_view(), name='create'),
     path('feedback/', feedback, name='feedback'),
-    path('<int:pk>', Profile.as_view(), name='profile'),
     path('', PostListView.as_view(), name='main'),
     path('post/<int:id>', show_post, name='post'),
-    path('post/<int:id>/comment', create_com, name='comment'),
-    path('profile/<int:pk>', Profile.as_view(), name='profile'),
-    path('profile/<int:pk>/edit', ProfileUpdateView.as_view(), name='profile-edit'),
-
-    # path('c/<int:id>', get_name, name='name'),
-
-    # path('post/<int:pk>', CommentsListView.as_view(), name='post'),
+    path('profile', profile, name='profile'),
+    path('profile/edit', update_profile, name='profile-edit'),
+    path('profile/<int:id>/posts', userpost, name='user-posts'),
 
 ]
 

@@ -42,6 +42,8 @@ class Profile(models.Model):
 
 
 class Comments(models.Model):
+    is_published = models.BooleanField(default=False)
+
     name = models.CharField(max_length=100)
 
     author = models.ForeignKey(
@@ -57,7 +59,12 @@ class Comments(models.Model):
 
 
 class Post(models.Model):
-    text = models.TextField(max_length=100)
+    subject = models.CharField(max_length=100)
+    short_description = models.CharField(max_length=30,
+                                         help_text='Length of the short description should not exceed 30 characters')
+    text = models.TextField(max_length=1000,
+                            help_text='Length of the post should not exceed 1000 characters.')
+
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE)

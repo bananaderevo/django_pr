@@ -1,12 +1,5 @@
 <form action="" method="post">
   {% csrf_token %}
-
-  {% if names %}
-
-      {{ name.name }}<br>
-      {{ name.author }}<br>
-  {% endif %}
-
-  {{ form }}
+  Comment: {{ form.name }}
   <input type="submit" value="Submit">
 </form>
