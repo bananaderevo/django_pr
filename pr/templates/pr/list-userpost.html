@@ -17,8 +17,8 @@
                 <tr><td style="width:300px">Short description: {{ i.short_description }}</td></tr>
                 <tr><td style="width:300px">{{ i.text }}</td></tr>
             </table><table border="2" bordercolor="black" bgcolor="white" width="300">
-
-                <tr><td style="width:300px"><a href="/post/{{ i.id }}">Detail</td></tr>
+                <tr><td style="width:300px">Is active: {{ i.is_published }}</td></tr>
+            <tr><td style="width:300px"><a href="/post/{{ i.id }}">Detail</a></td></tr>
             </table><br>
         {% endfor %}
          {% else %}

@@ -9,9 +9,9 @@
     <form action="/accounts/signup"><button type="submit">Sign up</button></form>
     <form action="/accounts/login"><button type="submit">Log in</button></form>
     {% endif %}
-     {% if object_list %}
+     {% if page_obj %}
         <form action="/create/"><button type="submit">Create post</button></form>
-        {% for i in object_list %}
+        {% for i in page_obj %}
             <table border="2" bordercolor="black" bgcolor="white" width="300"> <!-- New table in every loop is correct -->
                 <tr><td style="width:300px">Subject: {{ i.subject }}</td></tr>
                 <tr><td style="width:300px">Short description: {{ i.short_description }}</td></tr>

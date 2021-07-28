@@ -17,7 +17,7 @@ from .models import Post, Comments
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['subject', 'short_description', 'text']
+    fields = ['subject', 'short_description', 'text', 'is_published']
     success_url = '/'
     template_name = 'pr/create.html'
 
@@ -35,21 +35,21 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-# class Profile(DetailView):
-#     model = User
-#     template_name = 'user/user_profile.html'
-#     context_object_name = 'user'
-
 def profile(request):
     user = request.user
-
     return render(request, 'user/user_profile.html', {'user': user})
 
 
-class ProfileUpdateView(UpdateView):
+class PublicProfileDetailView(DetailView):
     model = User
-    fields = ['username', 'first_name', 'last_name', 'email', 'short_description', 'description']
-    template_name = 'user/user_profile_edit.html'
+    template_name = 'user/user_profile.html'
+    context_object_name = 'user'
+
+
+class PostUpdateView(UpdateView):
+    model = Post
+    fields = ['subject', 'short_description', 'text', 'is_published']
+    template_name = 'pr/create.html'
 
 
 def profile_edit(request):
@@ -89,11 +89,15 @@ def profile_edit(request):
     return render(request, 'pr/list-comments.html', {'form': form, 'names': names})
 
 
-class PostListView(ListView):
-    model = Post
-    paginate_by = 10
-    fields = ['text', 'author']
-    template_name = 'pr/list-post.html'
+def postlist(request):
+    posts = Post.objects.filter(is_published=True)
+    object_list = posts
+    paginator = Paginator(object_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'pr/list-post.html', {'posts': posts,
+                                                 'page_obj': page_obj})
 
 
 def userpost(request, id):
@@ -112,7 +116,7 @@ def userpost(request, id):
 
 def show_post(request, id):
     post = get_object_or_404(Post, id=id)
-    object_list = post.comments.all().order_by('-id')
+    object_list = post.comments.filter(is_published=True).order_by('-id')
 
     paginator = Paginator(object_list, 5)
     page_number = request.GET.get('page')
@@ -140,8 +144,9 @@ def show_post(request, id):
                 post.save()
             # Редирект на ту же страницу
             send_mail(subject='New comment!',
-                      message=f'New comment was added: {Comments.objects.last().name}\n'
-                              f'Author: {Comments.objects.last().author}',
+                      message=f'New comment was added for checking: {Comments.objects.last().name}\n'
+                              f'Author: {Comments.objects.last().author}\n'
+                              f'Link: domain.com{request.path}',
                       from_email='admin@admin',
                       recipient_list=[email, 'admin@admin'])
             return HttpResponseRedirect(reverse('post', kwargs={'id': id}))

@@ -42,9 +42,9 @@ class Profile(models.Model):
 
 
 class Comments(models.Model):
-    is_published = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=True)
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name='Comment')
 
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -59,6 +59,8 @@ class Comments(models.Model):
 
 
 class Post(models.Model):
+    is_published = models.BooleanField(default=False, verbose_name='Is active')
+
     subject = models.CharField(max_length=100)
     short_description = models.CharField(max_length=30,
                                          help_text='Length of the short description should not exceed 30 characters')
@@ -82,8 +84,11 @@ class Post(models.Model):
 
     def display_all_comments(self):
 
-        return ', '.join([comments.name for comments in self.comments.all()])
+        return ', '.join([comments.name for comments in self.comments.all()[:3]])
 
     display_comments.short_description = 'Comments'
+
+    def get_absolute_url(self):
+        return f'/post/{self.id}'
 
 

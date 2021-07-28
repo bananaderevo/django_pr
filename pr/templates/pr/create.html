@@ -1,5 +1,6 @@
 {% extends 'pr/base.html' %}
 {% block content %}
+        <form action="/"><button type="submit">Main</button></form>
     <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Create">

@@ -5,7 +5,7 @@ from .models import Comments, Post, User
 
 @admin.register(Post)
 class PostModelAdmin(admin.ModelAdmin):
-    list_display = ['text', 'author', 'display_comments']
+    list_display = ['text', 'author', 'display_comments', 'is_published']
 
 
 @admin.register(Comments)

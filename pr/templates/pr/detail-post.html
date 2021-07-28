@@ -2,6 +2,7 @@
 {% block content %}
     <form action="/create/"><button type="submit">Create post</button></form>
     <form action="/"><button type="submit">Main</button></form>
+
     {% if post %}
         <p>Subject: {{ post.Subject }}</p>
         <p>Short description: {{ post.short_description }}</p>
@@ -9,29 +10,38 @@
         <p>Post: {{ post.text }}</p>
 
         <h1>Author: {{ post.author }}</h1>
-        <h2>Comments</h2>
+        {% if request.user == post.author %}
+                        <table border="2" bordercolor="black" bgcolor="white" width="300"> <!-- New table in every loop is correct -->
+                <tr><td style="width:300px"><a href="{{ post.id }}/edit">Edit</a> </td></tr>
+                        </table>
+            {% endif %}
+        {% if page_obj %}
+            <h2>Comments</h2>
         {% for i in page_obj %}
-            {% if i.is_published %}
+
             <table border="2" bordercolor="black" bgcolor="white" width="300"> <!-- New table in every loop is correct -->
                 <tr><td style="width:300px">Comment: {{ i.name }}</td></tr>
                 {% if i.author == None %}
                 <tr><td style="width:300px">Author: Anonymous</td></tr>
                 {% else %}
                 <tr><td style="width:300px">Author: {{ i.author }}</td></tr>
-                    {% endif %}
+
                 {% endif %}
 
             </table>
 
         {% endfor %}
         <br>
-        <form action="" method="post">
-        {% csrf_token %}
-        Add comment: {{ form.name }}
-        <input type="submit" value="Submit">
-        </form>
+
+
         <br>
         {% include 'pr/pagination.html' %}
 
     {% endif %}
+    {% endif %}
+    <form action="" method="post">
+        {% csrf_token %}
+        Add comment: {{ form.name }}
+    <input type="submit" value="Submit">
+        </form>
 {% endblock %}
