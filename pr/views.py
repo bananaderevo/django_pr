@@ -92,7 +92,7 @@ def profile_edit(request):
 def postlist(request):
     posts = Post.objects.filter(is_published=True)
     object_list = posts
-    paginator = Paginator(object_list, 5)
+    paginator = Paginator(object_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -157,7 +157,7 @@ def show_post(request, id):
         form = NameForm()
 
         # Получение всех имен из БД.
-        names = Comments.objects.all()
+        names = Comments.objects.filter(is_published=True)
 
     # И добавляем names в контекст, чтобы плучить к ним доступ в шаблоне
     return render(request, 'pr/detail-post.html', {'post': post,

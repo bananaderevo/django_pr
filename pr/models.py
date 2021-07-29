@@ -42,7 +42,7 @@ class Profile(models.Model):
 
 
 class Comments(models.Model):
-    is_published = models.BooleanField(default=True)
+    is_published = models.BooleanField(default=False)
 
     name = models.CharField(max_length=100, verbose_name='Comment')
 
@@ -64,8 +64,8 @@ class Post(models.Model):
     subject = models.CharField(max_length=100)
     short_description = models.CharField(max_length=30,
                                          help_text='Length of the short description should not exceed 30 characters')
-    text = models.TextField(max_length=1000,
-                            help_text='Length of the post should not exceed 1000 characters.')
+    text = models.TextField(max_length=1500,
+                            help_text='Length of the post should not exceed 1500 characters.')
 
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,

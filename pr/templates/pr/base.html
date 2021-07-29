@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+{% block head %}
+{% endblock %}
+    {% load static %}
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'pr/style.css' %}">
 </head>
 <body>
-    <form action="/feedback"><button type="submit">Contact us</button></form>
+        {% if request.user.is_authenticated and request.path != '/profile'%}
+        <a href="/profile" class="gradient-button">My profile</a>{% endif %}
+            <a href="/feedback" class="gradient-button">Contact us</a>
 
-    {% if request.user.is_authenticated and request.path != '/profile'%}
-        <form action="/profile"><button type="submit">My profile</button></form>
 
-    {% endif %}
+
+
 {% block content %}
 {% endblock %}
 </body>

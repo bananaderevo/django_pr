@@ -1,12 +1,11 @@
 {% extends 'pr/base.html' %}
 {% block title %}Edit{% endblock %}
 {% block content %}
+<a href="/" class="gradient-button-r">Main</a>
 
-
-    <form action="/"><button type="submit">Main</button> </form>
     <form method="post">{% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Edit">
+    <input type="submit" value="Edit" class="gradient-button">
 </form>
 
 {% endblock %}

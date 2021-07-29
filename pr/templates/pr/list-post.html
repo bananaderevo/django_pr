@@ -1,31 +1,35 @@
 {% extends 'pr/base.html' %}
+{% block head %}
+{% endblock %}
 {% block content %}
     {% if request.user.is_authenticated %}
         <p>Hi, {{ request.user }}</p>
-        <form action="/profile"><button type="submit">My profile</button></form>
-        <form action="/accounts/logout"><button type="submit">Log out</button></form>
+            <a href="/accounts/logout" class="gradient-button-r">logout</a>
     {% else %}
         <p>You are not authorized.</p>
-    <form action="/accounts/signup"><button type="submit">Sign up</button></form>
-    <form action="/accounts/login"><button type="submit">Log in</button></form>
+
+            <a href="/accounts/signup" class="gradient-button-r1">Sign up</a>
+            <a href="/accounts/login" class="gradient-button-r">Login</a>
     {% endif %}
      {% if page_obj %}
-        <form action="/create/"><button type="submit">Create post</button></form>
+            <a href="/create" class="gradient-button">Create post</a>
         {% for i in page_obj %}
-            <table border="2" bordercolor="black" bgcolor="white" width="300"> <!-- New table in every loop is correct -->
+            <table border="1" bordercolor="orange" bgcolor="white" width="300"> <!-- New table in every loop is correct -->
                 <tr><td style="width:300px">Subject: {{ i.subject }}</td></tr>
                 <tr><td style="width:300px">Short description: {{ i.short_description }}</td></tr>
                 <tr><td style="width:300px">{{ i.text }}</td></tr>
-            </table><table border="2" bordercolor="black" bgcolor="white" width="300">
+            </table><table border="1" bordercolor="orange" bgcolor="white" width="300">
                 <tr><td style="width:300px">Author: <a href="/user/{{ i.author.id }}">{{ i.author }}</a></td></tr>
 
-                <tr><td style="width:300px"><a href="/post/{{ i.id }}">Detail</td></tr>
+            <tr><td style="width:300px"><a href="/post/{{ i.id }}">Detail</a></td></tr>
             </table><br>
         {% endfor %}
 
     {% else %}
         <h1>There are not any posts, add some.</h1>
-        <form action="/create/"><button type="submit">Create post</button></form>
+            <a href="/create" class="gradient-button">Create post</a>
     {% endif %}
+     {% if page_obj.paginator.num_pages > 1 %}
     {% include "pr/pagination.html"%}
+    {% endif %}
 {% endblock %}

@@ -1,4 +1,7 @@
 import os
+
+from django.contrib.staticfiles.finders import AppDirectoriesFinder
+
 """
 Django settings for untitled1 project.
 
@@ -39,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pr',
+
 ]
 
 # AUTHENTICATION_BACKENDS = (

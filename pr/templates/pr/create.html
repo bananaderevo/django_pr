@@ -1,9 +1,10 @@
 {% extends 'pr/base.html' %}
 {% block content %}
-        <form action="/"><button type="submit">Main</button></form>
+    <div class="box">
+            <a href="/" class="gradient-button">Main</a></div>
     <form method="post">{% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Create">
+    <input type="submit" value="Create" class="gradient-button">
 </form>
 
 {% endblock %}

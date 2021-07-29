@@ -1,15 +1,14 @@
 {% extends 'pr/base.html' %}
 {% block content %}
-    <form action="/"><button type="submit">Main</button></form>
-    <h1>Username: {{ user.username }}</h1>
+<a href="/" class="gradient-button-r">Main</a>    <h1>Username: {{ user.username }}</h1>
     <h2>First name: {{ user.first_name }}</h2>
     <h2>Last name: {{ user.last_name }}</h2>
     <h2>Email: {{ user.email }}</h2>
     <h3>Short description: {{ user.short_description }}</h3>
     <h3>About: {{ user.description }}</h3>
     <h3>Join date: {{ user.date_joined }}</h3>
-    <form action="/profile/{{ user.id }}/posts"><button type="submit">My posts</button></form>
+    <a href=/profile/{{ user.id }}/posts class="gradient-button">My posts</a>
     {% if request.user == user %}
-    <form action="/profile/edit"><button type="submit">Edit profile</button></form>
+<a href="/profile/edit" class="gradient-button">Edit profile</a>
     {% endif %}
 {% endblock %}
