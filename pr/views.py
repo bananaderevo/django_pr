@@ -1,6 +1,5 @@
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.template.loader import render_to_string
 from django.views.generic.edit import CreateView
 from django.views.generic import DetailView, ListView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,6 +7,8 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.shortcuts import render, get_object_or_404
 from .forms import NameForm, FeedbackForm, UpdateProfile
 from django.http import HttpResponseRedirect
+from django.contrib import messages
+from django.http import JsonResponse
 
 from django.urls import reverse
 from django.core.mail import send_mail
@@ -34,6 +35,11 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         self.object = post
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_f'] = mod_feedback_c(self.request)
+        return context
+
 
 def profile(request):
     user = request.user
@@ -45,15 +51,24 @@ class PublicProfileDetailView(DetailView):
     template_name = 'user/user_profile.html'
     context_object_name = 'user'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_f'] = mod_feedback_c(self.request)
+        return context
+
 
 class PostUpdateView(UpdateView):
     model = Post
     fields = ['subject', 'short_description', 'text', 'is_published']
     template_name = 'pr/create.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_f'] = mod_feedback_c(self.request)
+        return context
+
 
 def profile_edit(request):
-
     if request.method == 'POST':
 
         form = NameForm(request.POST)
@@ -78,7 +93,7 @@ def profile_edit(request):
             return HttpResponseRedirect(reverse('post', kwargs={'id': id}))
 
     else:
-    # метод GET
+        # метод GET
 
         form = NameForm()
 
@@ -86,7 +101,36 @@ def profile_edit(request):
         names = Comments.objects.all()
 
     # И добавляем names в контекст, чтобы плучить к ним доступ в шаблоне
-    return render(request, 'pr/list-comments.html', {'form': form, 'names': names})
+    return render(request, 'pr/list-comments.html', {'form': form,
+                                                     'names': names,
+                                                     'form_f': mod_feedback_c(request)})
+
+
+def mod_feedback(request):
+    contact_name = request.POST.get(
+        'contact_name'
+        , '')
+    contact_email = request.POST.get(
+        'contact_email'
+        , '')
+    form_content = request.POST.get('content', '')
+
+    send_mail(subject='Need feedback :(',
+              message=f'{form_content}\nMail to feedback: {contact_email}\n Name: {contact_name}',
+              from_email='admin@admin',
+              recipient_list=['test@test'])
+    return HttpResponseRedirect('/')
+
+
+def mod_feedback_c(request):
+    if request.method == 'POST':
+        form = FeedbackForm(data=request.POST)
+        if form.is_valid():
+            mod_feedback(request)
+            messages.success(request, 'Mail was successfully sent')
+            return form
+    else:
+        return FeedbackForm()
 
 
 def postlist(request):
@@ -96,8 +140,14 @@ def postlist(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'pr/list-post.html', {'posts': posts,
-                                                 'page_obj': page_obj})
+    context = {'posts': posts,
+               'page_obj': page_obj,
+               'form_f': mod_feedback_c(request)}
+
+    if request.method == 'POST':
+        context['messages'] = messages.success(request, 'Mail was successfully sent')
+
+    return render(request, 'pr/list-post.html', context)
 
 
 def userpost(request, id):
@@ -111,7 +161,12 @@ def userpost(request, id):
 
     return render(request, 'pr/list-userpost.html', {'posts': posts,
                                                      'page_obj': page_obj,
-                                                     'author': author})
+                                                     'author': author,
+                                                     'form_f': mod_feedback_c(request)})
+
+
+def formtobase(request, pk):
+    return render(request, 'pr/create.html', {'form_f': mod_feedback_c(request)})
 
 
 def show_post(request, id):
@@ -152,7 +207,7 @@ def show_post(request, id):
             return HttpResponseRedirect(reverse('post', kwargs={'id': id}))
 
     else:
-    # метод GET
+        # метод GET
 
         form = NameForm()
 
@@ -162,34 +217,9 @@ def show_post(request, id):
     # И добавляем names в контекст, чтобы плучить к ним доступ в шаблоне
     return render(request, 'pr/detail-post.html', {'post': post,
                                                    'page_obj': page_obj,
-                                                   'form': form, 'names': names})
-
-
-def feedback(request):
-
-    if request.method == 'POST':
-        form = FeedbackForm(data=request.POST)
-
-        if form.is_valid():
-            contact_name = request.POST.get(
-                'contact_name'
-                , '')
-            contact_email = request.POST.get(
-                'contact_email'
-                , '')
-            form_content = request.POST.get('content', '')
-
-            # Email the profile with the
-            # contact information
-            send_mail(subject='Need feedback :(',
-                      message=f'{form_content}\nMail to feedback: {contact_email}\n Name: {contact_name}',
-                      from_email='admin@admin',
-                      recipient_list=['test@test'])
-            return HttpResponseRedirect('/')
-
-    return render(request, 'pr/feedback.html', {
-        'form': FeedbackForm,
-    })
+                                                   'form': form,
+                                                   'names': names,
+                                                   'form_f': mod_feedback_c(request)})
 
 
 def update_profile(request):
@@ -204,7 +234,22 @@ def update_profile(request):
     else:
         form = UpdateProfile()
 
-    return render(request, 'user/user_profile_edit.html', {'form': form})
+    return render(request, 'user/user_profile_edit.html', {'form': form,
+                                                           'form_f': mod_feedback_c(request)})
+
+
+def allp(request):
+    data = dict()
+    a = dict()
+    o = 0
+    for i in Post.objects.all():
+        a[f'post{o}'] = {'author': i.author, 'short_description': i.short_description, 'text': i.text}
+
+        o += 1
+    data['posts'] = a
+
+    print(a)
+    return JsonResponse(a)
 
 
 def handler404(request, *args, **argv):
