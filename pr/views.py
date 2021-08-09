@@ -15,6 +15,9 @@ from django.core.mail import send_mail
 
 from .models import Post, Comments
 
+from .forms import ContactForm
+
+from .tasks import send_mail_to
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -103,7 +106,7 @@ def profile_edit(request):
     # И добавляем names в контекст, чтобы плучить к ним доступ в шаблоне
     return render(request, 'pr/list-comments.html', {'form': form,
                                                      'names': names,
-                                                     'form_f': mod_feedback_c(request)})
+                                                     })
 
 
 def mod_feedback(request):
@@ -142,7 +145,7 @@ def postlist(request):
 
     context = {'posts': posts,
                'page_obj': page_obj,
-               'form_f': mod_feedback_c(request)}
+               }
 
     if request.method == 'POST':
         context['messages'] = messages.success(request, 'Mail was successfully sent')
@@ -162,7 +165,7 @@ def userpost(request, id):
     return render(request, 'pr/list-userpost.html', {'posts': posts,
                                                      'page_obj': page_obj,
                                                      'author': author,
-                                                     'form_f': mod_feedback_c(request)})
+                                                     })
 
 
 def formtobase(request, pk):
@@ -219,7 +222,7 @@ def show_post(request, id):
                                                    'page_obj': page_obj,
                                                    'form': form,
                                                    'names': names,
-                                                   'form_f': mod_feedback_c(request)})
+                                                   })
 
 
 def update_profile(request):
@@ -235,7 +238,7 @@ def update_profile(request):
         form = UpdateProfile()
 
     return render(request, 'user/user_profile_edit.html', {'form': form,
-                                                           'form_f': mod_feedback_c(request)})
+                                                           })
 
 
 def allp(request):
@@ -262,3 +265,30 @@ def handler500(request, *args, **argv):
     response = render(request, 'errors/500.html')
     response.status_code = 500
     return response
+
+
+def save_contact(request, form, template_name):
+    data = dict()
+    if request.method == 'POST':
+        if form.is_valid():
+            data['form_is_valid'] = True
+
+        else:
+            data['form_is_valid'] = False
+    context = {'form': form}
+    data['html_form'] = render_to_string(template_name, context, request=request)
+    return JsonResponse(data)
+
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            send_mail_to.delay('Support', f'From: {email}\nName: {name}\n{text}', ['admin@admin'])
+        return HttpResponseRedirect(reverse('main'))
+    else:
+        form = ContactForm()
+    return save_contact(request, form, 'pr/contact.html')

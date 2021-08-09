@@ -2,7 +2,7 @@ from django import forms
 from .models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Comments
-
+from .tasks import send_mail_to
 
 class NameForm(forms.ModelForm):
 
@@ -54,3 +54,16 @@ class UpdateProfile(forms.ModelForm):
             user.save()
 
         return user
+
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=50)
+    email = forms.EmailField()
+    text = forms.CharField(max_length=1000)
+
+    def send(self):
+        text = self.text
+        name = self.name
+        email = self.cleaned_data['email']
+        send_mail_to.delay('Remind', f'Admin, you have a feedback message: {text}\n From: {name}, email: {email}',
+                           'admin@admin')

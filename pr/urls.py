@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import PostCreateView, PublicProfileDetailView, allp, formtobase, profile, update_profile, show_post, userpost, PostUpdateView, postlist
+from .views import contact, PostCreateView, PublicProfileDetailView, allp, formtobase, profile, update_profile, show_post, userpost, PostUpdateView, postlist
 
 
 urlpatterns = [
@@ -15,6 +15,8 @@ urlpatterns = [
 
     path('profile/<int:pk>', PublicProfileDetailView.as_view(), name='public-profile'),
     path('allp/', allp, name='public-profile'),
+
+    path('contact/', contact, name='contact'),
 
 ]
 

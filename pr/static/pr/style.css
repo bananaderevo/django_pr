@@ -99,3 +99,6 @@ th, td {
   text-align: left;
 }
 
+.error {
+    color: red;
+}
